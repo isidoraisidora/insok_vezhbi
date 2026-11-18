@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Чување на JWT токенот во сесијата
         $_SESSION['jwt'] = $token;
         $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $username;
 
 
         // Пренасочување на корисникот на главната страна

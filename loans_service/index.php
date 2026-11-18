@@ -15,8 +15,12 @@ include 'helpers/functions.php';
 $db = connectDatabase();
 
 // Fetch all students from the database
-$query = "SELECT l.id as ID, l.date_loan, l.date_return, b.title, l.number_days FROM loans l join books b on l.book_id=b.id join users u on l.user_id=u.id";
-$result = $db->query($query);
+$username = $_SESSION['username'];
+
+$query = $db->prepare("SELECT l.id as ID, l.date_loan, l.date_return, b.title, l.number_days FROM loans l join books b on l.book_id=b.id join users u on l.user_id=u.id where u.username = :username");
+$query->bindValue(':username', $username, SQLITE3_TEXT);
+$result = $query->execute();
+
 
 if (!$result) {
     die("Error fetching students: " . $db->lastErrorMsg());
@@ -50,6 +54,9 @@ if (!$result) {
     <h1>Loans List</h1>
     <a href="pages/create.php">
         Add Loan
+    </a>
+    <a href="handlers/auth/logout_handler.php">
+        Logout
     </a>
 </div>
 <table>
