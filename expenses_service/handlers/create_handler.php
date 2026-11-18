@@ -1,0 +1,44 @@
+<?php
+// Include the database connection file
+include '../database/db_connection.php';
+
+// Check if the request method is POST to handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get form values from the POST request, with basic validation
+    $name = $_POST['name'] ?? '';
+    $date = $_POST['date'] ?? '';
+    $type = $_POST['type'] ?? '';
+    $amount = (int) ($_POST['amount'] ?? 0);
+
+    // Validate required fields
+    if (empty($name) || empty($date) || $amount <= 0 || ($type !== 'Cash' && $type !== 'Card')) {
+        echo "Please fill in all required fields correctly.";
+        exit;
+    }
+
+    // Connect to the SQLite database
+    $db = connectDatabase();
+
+    // Prepare and execute the insert statement
+    $stmt = $db->prepare("INSERT INTO expenses (name, date, amount, type) VALUES (:name, :date, :amount, :type)");
+    $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+    $stmt->bindValue(':date', $date);
+    $stmt->bindValue(':amount', $amount, SQLITE3_INTEGER);
+    $stmt->bindValue(':type', $type, SQLITE3_TEXT);
+
+
+    // Execute the statement and check for success
+    if ($stmt->execute()) {
+        // Redirect back to the view page
+        header("Location: ../index.php");
+    } else {
+        echo "Error adding student: " . $db->lastErrorMsg();
+    }
+
+    // Close the database connection
+    $db->close();
+} else {
+    // If not a POST request, display an error message
+    echo "Invalid request method. Please submit the form to add a student.";
+}
+?>
